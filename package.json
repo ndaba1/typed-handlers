@@ -1,0 +1,23 @@
+{
+  "name": "typed-handlers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.11.20",
+    "next": "^14.1.0",
+    "typescript": "^5.3.3",
+    "zod": "^3.22.4"
+  },
+  "dependencies": {
+    "esbuild-register": "^3.5.0",
+    "ts-import": "5.0.0-beta.0"
+  }
+}
