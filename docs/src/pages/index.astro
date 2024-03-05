@@ -5,33 +5,30 @@ import Layout from "../layouts/Layout.astro";
 const features = [
   {
     title: "Minimal footprint",
-    description:
-      "Define your API handlers in a single file, and invoke them from anywhere",
+    description: "Built with zero dependencies and a small API surface",
   },
   {
     title: "Pages router support",
-    description:
-      "The package works for both the app directory and the pages directory",
+    description: "Pages or app router, it matters not. Both are supported",
   },
   {
     title: "IDE and runtime type safety",
     description:
-      "The package works for both the app directory and the pages directory",
+      "Linter errors when building and red squiggly lines in your editor",
   },
   {
     title: "Input and output validation",
     description:
-      "The package works for both the app directory and the pages directory",
+      "Run-time validation and sanitization of input and output data",
   },
   {
-    title: "Endpoint autocomplete",
-    description:
-      "The package works for both the app directory and the pages directory",
+    title: "Endpoint autocompletion",
+    description: "Make requests to typed endpoints with confidence",
   },
   {
-    title: "Zero dependencies",
+    title: "Built on Zod",
     description:
-      "The package works for both the app directory and the pages directory",
+      "Leverage the power of Zod to define your input and output schemas",
   },
 ];
 
@@ -47,17 +44,80 @@ const tsconfig = `
   ],
 }
 `;
+
+const handler = `
+// app/api/hello.ts
+
+import { NextResponse } from "next/server";
+import { createHandler, schema } from "typed-handlers";
+import { z } from "zod";
+
+export const POST = createHandler(
+  async ({ body }) => {
+    return NextResponse.json({
+      message: \`Hello, \${body.name}!\`,
+    });
+  },
+  {
+    schema: schema({
+      body: z.object({
+        name: z.string({ required_error: "Name is required" }),
+      }),
+    }),
+  }
+);
+`;
+
+const fullHandler = `
+// app/api/hello.ts
+
+import { NextResponse } from "next/server";
+import { createHandler, schema } from "typed-handlers";
+import { z } from "zod";
+
+export const POST = createHandler(
+  async ({ body, query }) => {
+    return NextResponse.json({
+      // output will be validated
+      message: \`Hello, \${body.name}! You've requested page \${query.page}\`,
+    });
+  },
+  {
+    schema: schema({
+      body: z.object({
+        name: z.string(),
+      }),
+      output: z.object({
+        message: z.string(),
+      }),
+      query: z.object({
+        page: z.coerce.number().optional().default(1),
+      }),
+    }),
+    onValidationError: ({ source, error }) => {
+      console.error(source); // -> 'body' | 'query'
+      console.error(error); // -> 'tis a ZodError instance
+      return NextResponse.json(
+        { error: \`Invalid request \${source}\`, issues: error.issues },
+        { status: 422 }
+      );
+    },
+  }
+);
+`;
 ---
 
 <Layout title="Typed handlers">
   <main class="max-w-7xl mx-auto p-5 py-20 space-y-5">
-    <h1 class="heading text-center text-4xl">
-      Simple, type-safe REST APIs in Next.js
+    <h1 class="heading text-center leading-loose text-4xl">
+      Simple, <span
+        class="underline decoration-wavy decoration-red-500 underline-offset-[10px]"
+        >type-safe</span
+      > REST APIs in Next.js
     </h1>
     <p class="text-center text-xl leading-relaxed max-w-lg mx-auto">
-      This package presents an opinionated way to define and invoke REST APIs in
-      Next.js in a type-safe and dev friendly way. It is designed to be used
-      with <code>zod</code>
+      An opinionated approach to achieving type safety in your Next.js project
+      without sacrificing developer experience or the simplicity of REST APIs
     </p>
 
     <ul class="grid grid-cols-1 md:grid-cols-3 gap-6 py-10 max-w-5xl mx-auto">
@@ -71,8 +131,8 @@ const tsconfig = `
       }
     </ul>
 
-    <section class="pb-10 max-w-5xl mx-auto space-y-6">
-      <h2 class="text-2xl font-medium text-center mb-8">Getting started</h2>
+    <section id="getting-started" class="pb-10 max-w-5xl mx-auto space-y-6">
+      <h2 class="text-2xl heading text-center mb-8">Getting started</h2>
       <div>
         <p class="mb-2 text-gray-500 text-sm tracking-wide">INSTALLATION</p>
         <Prism
@@ -99,7 +159,9 @@ const tsconfig = `
         />
         <p>
           Once you&apos;ve added this to your config, you'll notice that a new
-          file `typed-handlers.d.ts` is created add added to the `include`
+          file <code>typed-handlers.d.ts</code> is created add added to the <code
+            >include</code
+          >
           options in your <code>tsconfig.json</code> file. If this doesn't happen
           automatically for whatever reason, ensure your setup resembles the following
         </p>
@@ -109,7 +171,7 @@ const tsconfig = `
           class="rounded-lg bg-white p-4"
         />
         <Prism
-          lang="ts"
+          lang="json"
           code={`\/\/ tsconfig.json\n\n${tsconfig.trim()}`}
           class="rounded-lg bg-white p-4"
         />
@@ -122,8 +184,80 @@ const tsconfig = `
       </div>
     </section>
 
-    <section class="pb-10 max-w-5xl mx-auto space-y-6">
-      <h2 class="text-2xl font-medium text-center mb-8">Example usage</h2>
+    <section id="example-usage" class="pb-10 max-w-5xl mx-auto space-y-6">
+      <h2 class="text-2xl heading text-center mb-8">Example usage</h2>
+
+      <div class="space-y-3">
+        <Prism
+          lang="ts"
+          code={handler.trim()}
+          class="rounded-lg bg-white p-4"
+        />
+        <p>
+          The example above demonstrates a simple POST request handler. It's
+          similar to the default Next.js API route handler, but with a few key
+          differences:
+        </p>
+        <ul class="list-disc pl-5 space-y-3">
+          <li>
+            The route handler is wrapped in the <code>createHandler</code> utility
+            function from the <code>typed-handlers</code> package. The second argument
+            is an options object that contains a
+            <code>schema</code> property which is used to define the input and output
+            schemas for validation and type safety.
+          </li>
+          <li>
+            To allow for output validation, the function must return a <code
+              >NextResponse</code
+            > object instead of the usual <code>Response</code> object. <code
+              >NextResponse</code
+            >
+            is generic while <code>Response</code> is not.
+          </li>
+          <li>
+            The function signature is slightly different. It receives an
+            enriched object as its only argument. It contains the following
+            properties: <code>request</code>, <code>context</code>, <code
+              >body</code
+            >, <code>query</code>, and <code>params</code> which have all been validated
+            (where applicable) and typed correctly.
+          </li>
+          <li>
+            <code>request</code> and <code>context</code> come from the Next.js API
+            route handler while <code>body</code>, <code>query</code>, and <code
+              >params</code
+            > are the parsed request body, query string, and route parameters respectively
+            (using zod objects provided in the schema).
+          </li>
+        </ul>
+        <p>
+          We can expand on this example to make it more full-featured as follows
+        </p>
+        <Prism
+          lang="ts"
+          code={fullHandler.trim()}
+          class="rounded-lg bg-white p-4"
+        />
+        <p>
+          It's important to note that the package automatically handles any
+          validation errors and returns a <code>400</code> error code with an error
+          title and description. The <code>onValidationError</code> option can be
+          used to customize this behavior.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <span class="text-gray-500 text-sm tracking-wide"
+          >TYPING DYNAMIC ROUTES</span
+        >
+        <p>
+          While type-safety to input and output validation utilize the <code
+            >zod</code
+          > schemas provided, type-safety for dynamic routes (therefore, params)
+          is a bit different. It happens via route inference i.e The package will infer
+          the types of the route parameters from the route itself. And since the
+          routes are typed, you can be sure that the types are correct.
+        </p>
+      </div>
     </section>
   </main>
 </Layout>

@@ -1,44 +1,47 @@
-import type { NextRequest, NextResponse } from "next/server";
-import { ZodError, ZodObject, ZodRawShape, z } from "zod";
-import { Awaitable, RouteParams, Schema } from "./types";
+import type { NextRequest } from "next/server";
+import { ZodError, z } from "zod";
+import {
+  HandlerFunction,
+  NextContext,
+  RouteParams,
+  Schema,
+  ValidationFunction,
+} from "./types";
+import { handleError } from "./utils";
 
 export function schema<
-  TInput extends z.ZodRawShape = {},
-  TQuery extends z.ZodRawShape = {},
-  TOutput extends z.ZodRawShape = {}
->(schema: Schema<TInput, TQuery, TOutput>) {
+  TInput extends z.ZodType,
+  TQuery extends z.ZodType,
+  TOutput extends z.ZodType,
+  TError extends z.ZodType
+>(schema: Schema<TInput, TQuery, TOutput, TError>) {
   return schema;
 }
 
-export function handler<
+export function createHandler<
   K extends keyof RoutesConfig,
-  TInput extends ZodRawShape = {},
-  TQuery extends ZodRawShape = {},
-  TOutput extends ZodRawShape = {}
+  TInput extends z.ZodType,
+  TQuery extends z.ZodType,
+  TOutput extends z.ZodType,
+  TError extends z.ZodType
 >(
   handler: (args: {
     request: Request;
-    context: { params: { [key: string]: string } };
-    body: z.infer<ZodObject<TInput>>;
-    query: z.infer<ZodObject<TQuery>>;
+    context: NextContext;
+    body: z.output<TInput>;
+    query: z.output<TQuery>;
     params: RouteParams<K>;
-  }) => Awaitable<NextResponse<z.infer<ZodObject<TOutput>>>> | Response,
+  }) => HandlerFunction<TOutput>,
   {
     schema,
     onValidationError,
   }: {
     path?: K;
-    schema: Schema<TInput, TQuery, TOutput>;
-    onValidationError?: (args: {
-      source: "body" | "query";
-      error: ZodError;
-    }) => Awaitable<NextResponse> | Response;
+    schema: Schema<TInput, TQuery, TOutput, TError>;
+    onValidationError?: ValidationFunction<TError>;
   }
 ) {
-  return async (
-    request: NextRequest,
-    context: { params: { [key: string]: string } }
-  ) => {
+  return async (request: NextRequest, context: NextContext) => {
     let body: any = {};
     let query: any = {};
     let params: any = {};
@@ -59,9 +62,9 @@ export function handler<
       ? Object.fromEntries((await request.formData()).entries())
       : {};
 
-    if (schema.input) {
+    if (schema.body) {
       try {
-        body = schema.input.parse(initBody);
+        body = schema.body.parse(initBody);
       } catch (error) {
         if (error instanceof ZodError) {
           return handleError(error, {
@@ -91,39 +94,4 @@ export function handler<
 
     return handler({ request, context, body: body, query, params });
   };
-}
-
-function handleError(
-  error: ZodError,
-  {
-    source,
-    message,
-    onValidationError,
-  }: {
-    source: "body" | "query";
-    message?: string;
-    onValidationError?: (args: {
-      source: "body" | "query";
-      error: ZodError;
-    }) => Awaitable<NextResponse> | Response;
-  }
-) {
-  if (onValidationError) {
-    return onValidationError({ source, error });
-  }
-
-  const { fieldErrors } = error.flatten();
-  const firstField = Object.keys(fieldErrors)[0];
-
-  return Response.json(
-    {
-      message: message ?? "Request validation failed",
-      description: firstField
-        ? fieldErrors[firstField]?.[0]
-        : "An error occurred",
-    },
-    {
-      status: 400,
-    }
-  );
 }

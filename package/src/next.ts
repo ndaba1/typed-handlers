@@ -48,7 +48,7 @@ function generateRoutes({ src, legacy }: { src: string; legacy?: boolean }) {
     const files = fs.readdirSync(apiDir, { recursive: true });
     files.forEach((file) => {
       if (typeof file === "string") {
-        routes.push(file);
+        routes.push(file.replace(/.(ts|js)$/, ""));
       }
     });
   } else {
@@ -76,13 +76,14 @@ function writeTypeDefs(routesConfig: Record<string, {}>) {
   const writeRelative = (p: string, content: string) =>
     fs.writeFileSync(path.join(nodeModulePath, p), content, "utf-8");
 
-  const routesDeclaration = `declare global {
-    interface RoutesConfig ${
-      Object.keys(routesConfig).length > 0
-        ? JSON.stringify(routesConfig, null, 2)
-        : ""
-    }
-  }\nexport {}`.trim();
+  const routesDeclaration = `
+declare global {
+\tinterface RoutesConfig ${JSON.stringify(routesConfig, null, 4).replace(
+    /\}$/,
+    "\t}"
+  )}
+}\n\nexport {};
+`.trim();
 
   writeRelative("routes.d.ts", `${routesDeclaration}`);
 
