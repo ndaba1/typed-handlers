@@ -11,26 +11,36 @@ export type Schema<
   TQuery extends z.ZodRawShape = {},
   TOutput extends z.ZodRawShape = {}
 > = {
-  input?: z.ZodObject<TInput>;
+  body?: z.ZodObject<TInput>;
   query?: z.ZodObject<TQuery>;
   output?: z.ZodObject<TOutput>;
 };
 
+export type ParamType<T extends string> = T extends `...${infer Param}`
+  ? {
+      [key in Param]: string[];
+    }
+  : {
+      [key in T]: string;
+    };
+
 export type RouteParams<K extends string> =
   K extends `/${infer Prefix}/${infer Rest}`
     ? Prefix extends `[${infer Param}]`
-      ? {
-          [key in Param | keyof RouteParams<`/${Rest}/`>]: string;
-        }
+      ? Param extends `...${infer InnerParam}`
+        ? {
+            [key in InnerParam | keyof RouteParams<`/${Rest}/`>]: string[];
+          }
+        : {
+            [key in Param | keyof RouteParams<`/${Rest}/`>]: string;
+          }
       : Rest extends `/[${infer Param}]`
-      ? {
-          [key in Param]: string;
-        }
+      ? ParamType<Param>
       : RouteParams<`/${Rest}`>
     : K extends `/${infer Rest}`
-    ? Rest extends `[${infer Param}]`
-      ? {
-          [key in Param]: string;
-        }
+    ? Rest extends `[[${infer Param}]]`
+      ? { [key in keyof ParamType<Param>]?: string[] }
+      : Rest extends `[${infer Param}]`
+      ? ParamType<Param>
       : {}
     : {};

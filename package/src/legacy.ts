@@ -1,15 +1,8 @@
-import type { NextRequest, NextResponse } from "next/server";
+import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
+import type { NextResponse } from "next/server";
 import { ZodError, ZodObject, ZodRawShape, z } from "zod";
 import { Awaitable, RouteParams, Schema } from "./types";
 import { handleError } from "./utils";
-
-export function schema<
-  TInput extends z.ZodRawShape = {},
-  TQuery extends z.ZodRawShape = {},
-  TOutput extends z.ZodRawShape = {}
->(schema: Schema<TInput, TQuery, TOutput>) {
-  return schema;
-}
 
 export function createHandler<
   K extends keyof RoutesConfig,
@@ -18,12 +11,13 @@ export function createHandler<
   TOutput extends ZodRawShape = {}
 >(
   handler: (args: {
-    request: Request;
-    context: { params: { [key: string]: string } };
+    request: Omit<NextApiRequest, keyof z.infer<ZodObject<TInput>>> &
+      z.infer<ZodObject<TInput>>;
+    response: NextApiResponse<z.infer<ZodObject<TOutput>>>;
     body: z.infer<ZodObject<TInput>>;
     query: z.infer<ZodObject<TQuery>>;
     params: RouteParams<K>;
-  }) => Awaitable<NextResponse<z.infer<ZodObject<TOutput>>>> | Response,
+  }) => ReturnType<NextApiHandler>,
   {
     schema,
     onValidationError,
@@ -37,28 +31,16 @@ export function createHandler<
   }
 ) {
   return async (
-    request: NextRequest,
-    context: { params: { [key: string]: string } }
+    request: Omit<NextApiRequest, keyof z.infer<ZodObject<TInput>>> &
+      z.infer<ZodObject<TInput>>,
+    response: NextApiResponse<z.infer<ZodObject<TOutput>>>
   ) => {
     let body: any = {};
     let query: any = {};
     let params: any = {};
 
-    const contentType = request.headers.get("content-type");
-    const contentLength = request.headers.get("content-length");
-
-    const hasContentLength = contentLength && Number(contentLength) > 0;
-    const hasJSONBody = hasContentLength && contentType === "application/json";
-    const hasFormBody =
-      hasContentLength && contentType === "application/x-www-form-urlencoded";
-
-    const initQuery = request.nextUrl.searchParams;
-    const initParams = context.params;
-    const initBody = hasJSONBody
-      ? await request.json()
-      : hasFormBody
-      ? Object.fromEntries((await request.formData()).entries())
-      : {};
+    const initQuery = request.query;
+    const initBody = request.body ?? {};
 
     if (schema.body) {
       try {
@@ -76,7 +58,7 @@ export function createHandler<
 
     if (schema.query) {
       try {
-        query = schema.query.parse(Object.fromEntries(initQuery.entries()));
+        query = schema.query.parse(initQuery);
       } catch (error) {
         if (error instanceof ZodError) {
           return handleError(error, {
@@ -88,8 +70,8 @@ export function createHandler<
       }
     }
 
-    params = (initParams ?? {}) as RouteParams<K>;
+    params = (initQuery ?? {}) as RouteParams<K>;
 
-    return handler({ request, context, body: body, query, params });
+    return handler({ request, response, body, query, params });
   };
 }
