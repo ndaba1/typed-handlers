@@ -1,45 +1,47 @@
-import type { NextRequest, NextResponse } from "next/server";
-import { ZodError, ZodObject, ZodRawShape, z } from "zod";
-import { Awaitable, RouteParams, Schema } from "./types";
+import type { NextRequest } from "next/server";
+import { ZodError, z } from "zod";
+import {
+  HandlerFunction,
+  NextContext,
+  RouteParams,
+  Schema,
+  ValidationFunction,
+} from "./types";
 import { handleError } from "./utils";
 
 export function schema<
-  TInput extends z.ZodRawShape = {},
-  TQuery extends z.ZodRawShape = {},
-  TOutput extends z.ZodRawShape = {}
->(schema: Schema<TInput, TQuery, TOutput>) {
+  TInput extends z.ZodType,
+  TQuery extends z.ZodType,
+  TOutput extends z.ZodType,
+  TError extends z.ZodType
+>(schema: Schema<TInput, TQuery, TOutput, TError>) {
   return schema;
 }
 
 export function createHandler<
   K extends keyof RoutesConfig,
-  TInput extends ZodRawShape = {},
-  TQuery extends ZodRawShape = {},
-  TOutput extends ZodRawShape = {}
+  TInput extends z.ZodType,
+  TQuery extends z.ZodType,
+  TOutput extends z.ZodType,
+  TError extends z.ZodType
 >(
   handler: (args: {
     request: Request;
-    context: { params: { [key: string]: string } };
-    body: z.infer<ZodObject<TInput>>;
-    query: z.infer<ZodObject<TQuery>>;
+    context: NextContext;
+    body: z.output<TInput>;
+    query: z.output<TQuery>;
     params: RouteParams<K>;
-  }) => Awaitable<NextResponse<z.infer<ZodObject<TOutput>>>> | Response,
+  }) => HandlerFunction<TOutput>,
   {
     schema,
     onValidationError,
   }: {
     path?: K;
-    schema: Schema<TInput, TQuery, TOutput>;
-    onValidationError?: (args: {
-      source: "body" | "query";
-      error: ZodError;
-    }) => Awaitable<NextResponse> | Response;
+    schema: Schema<TInput, TQuery, TOutput, TError>;
+    onValidationError?: ValidationFunction<TError>;
   }
 ) {
-  return async (
-    request: NextRequest,
-    context: { params: { [key: string]: string } }
-  ) => {
+  return async (request: NextRequest, context: NextContext) => {
     let body: any = {};
     let query: any = {};
     let params: any = {};

@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-import { ZodError } from "zod";
-import { Awaitable } from "./types";
+import { ZodError, ZodType } from "zod";
+import { ValidationFunction } from "./types";
 
 export const logger = (...args: any[]) => {
   if (process.env.TYPED_HANDLERS_DEBUG_MODE === "true") {
@@ -8,7 +7,7 @@ export const logger = (...args: any[]) => {
   }
 };
 
-export function handleError(
+export function handleError<T extends ZodType>(
   error: ZodError,
   {
     source,
@@ -17,10 +16,7 @@ export function handleError(
   }: {
     source: "body" | "query";
     message?: string;
-    onValidationError?: (args: {
-      source: "body" | "query";
-      error: ZodError;
-    }) => Awaitable<NextResponse> | Response;
+    onValidationError?: ValidationFunction<T>;
   }
 ) {
   if (onValidationError) {

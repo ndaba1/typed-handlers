@@ -1,21 +1,20 @@
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import type { NextResponse } from "next/server";
-import { ZodError, ZodObject, ZodRawShape, z } from "zod";
-import { Awaitable, RouteParams, Schema } from "./types";
+import { ZodError, z } from "zod";
+import { RouteParams, Schema, ValidationFunction } from "./types";
 import { handleError } from "./utils";
 
 export function createHandler<
   K extends keyof RoutesConfig,
-  TInput extends ZodRawShape = {},
-  TQuery extends ZodRawShape = {},
-  TOutput extends ZodRawShape = {}
+  TInput extends z.ZodType,
+  TQuery extends z.ZodType,
+  TOutput extends z.ZodType,
+  TError extends z.ZodType
 >(
   handler: (args: {
-    request: Omit<NextApiRequest, keyof z.infer<ZodObject<TInput>>> &
-      z.infer<ZodObject<TInput>>;
-    response: NextApiResponse<z.infer<ZodObject<TOutput>>>;
-    body: z.infer<ZodObject<TInput>>;
-    query: z.infer<ZodObject<TQuery>>;
+    request: Omit<NextApiRequest, keyof z.output<TInput>> & z.output<TInput>;
+    response: NextApiResponse<z.output<TOutput>>;
+    body: z.output<TInput>;
+    query: z.output<TQuery>;
     params: RouteParams<K>;
   }) => ReturnType<NextApiHandler>,
   {
@@ -23,17 +22,13 @@ export function createHandler<
     onValidationError,
   }: {
     path?: K;
-    schema: Schema<TInput, TQuery, TOutput>;
-    onValidationError?: (args: {
-      source: "body" | "query";
-      error: ZodError;
-    }) => Awaitable<NextResponse> | Response;
+    schema: Schema<TInput, TQuery, TOutput, TError>;
+    onValidationError?: ValidationFunction<TError>;
   }
 ) {
   return async (
-    request: Omit<NextApiRequest, keyof z.infer<ZodObject<TInput>>> &
-      z.infer<ZodObject<TInput>>,
-    response: NextApiResponse<z.infer<ZodObject<TOutput>>>
+    request: Omit<NextApiRequest, keyof z.output<TInput>> & z.output<TInput>,
+    response: NextApiResponse<z.output<TOutput>>
   ) => {
     let body: any = {};
     let query: any = {};

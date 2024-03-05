@@ -53,7 +53,7 @@ import { createHandler, schema } from "typed-handlers";
 import { z } from "zod";
 
 export const POST = createHandler(
-  async ({ body, query }) => {
+  async ({ body }) => {
     return NextResponse.json({
       message: \`Hello, \${body.name}!\`,
     });
@@ -66,7 +66,44 @@ export const POST = createHandler(
     }),
   }
 );
+`;
 
+const fullHandler = `
+// app/api/hello.ts
+
+import { NextResponse } from "next/server";
+import { createHandler, schema } from "typed-handlers";
+import { z } from "zod";
+
+export const POST = createHandler(
+  async ({ body, query }) => {
+    return NextResponse.json({
+      // output will be validated
+      message: \`Hello, \${body.name}! You've requested page \${query.page}\`,
+    });
+  },
+  {
+    schema: schema({
+      body: z.object({
+        name: z.string(),
+      }),
+      output: z.object({
+        message: z.string(),
+      }),
+      query: z.object({
+        page: z.coerce.number().optional().default(1),
+      }),
+    }),
+    onValidationError: ({ source, error }) => {
+      console.error(source); // -> 'body' | 'query'
+      console.error(error); // -> 'tis a ZodError instance
+      return NextResponse.json(
+        { error: \`Invalid request \${source}\`, issues: error.issues },
+        { status: 422 }
+      );
+    },
+  }
+);
 `;
 ---
 
@@ -163,9 +200,9 @@ export const POST = createHandler(
         </p>
         <ul class="list-disc pl-5 space-y-3">
           <li>
-            The route handler is wrapped in the <code>createHandler</code> utility function
-            from the <code>typed-handlers</code> package. The second argument is
-            an options object that contains a
+            The route handler is wrapped in the <code>createHandler</code> utility
+            function from the <code>typed-handlers</code> package. The second argument
+            is an options object that contains a
             <code>schema</code> property which is used to define the input and output
             schemas for validation and type safety.
           </li>
@@ -193,6 +230,33 @@ export const POST = createHandler(
             (using zod objects provided in the schema).
           </li>
         </ul>
+        <p>
+          We can expand on this example to make it more full-featured as follows
+        </p>
+        <Prism
+          lang="ts"
+          code={fullHandler.trim()}
+          class="rounded-lg bg-white p-4"
+        />
+        <p>
+          It's important to note that the package automatically handles any
+          validation errors and returns a <code>400</code> error code with an error
+          title and description. The <code>onValidationError</code> option can be
+          used to customize this behavior.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <span class="text-gray-500 text-sm tracking-wide"
+          >TYPING DYNAMIC ROUTES</span
+        >
+        <p>
+          While type-safety to input and output validation utilize the <code
+            >zod</code
+          > schemas provided, type-safety for dynamic routes (therefore, params)
+          is a bit different. It happens via route inference i.e The package will infer
+          the types of the route parameters from the route itself. And since the
+          routes are typed, you can be sure that the types are correct.
+        </p>
       </div>
     </section>
   </main>
