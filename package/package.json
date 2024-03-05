@@ -1,0 +1,46 @@
+{
+  "name": "typed-handlers",
+  "version": "0.0.0",
+  "description": "Type-safe REST APIs in Next.js",
+  "exports": {
+    "./package.json": "./package.json",
+    "./routes": {
+      "types": "./dist/routes.d.ts"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "module": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "import": "./dist/next.js",
+      "module": "./dist/next.js",
+      "require": "./dist/next.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.mjs",
+      "module": "./dist/client/index.mjs",
+      "require": "./dist/client/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "keywords": [],
+  "author": "Victor Ndaba <mwangindaba@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "next": ">= 13",
+    "zod": ">= 3.22"
+  }
+}
