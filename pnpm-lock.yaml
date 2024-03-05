@@ -47,6 +47,9 @@ importers:
       astro:
         specifier: ^4.4.11
         version: 4.4.11(@types/node@20.11.24)(typescript@5.3.3)
+      prismjs:
+        specifier: ^1.29.0
+        version: 1.29.0
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.1
