@@ -1,8 +1,8 @@
 import { GetProjectSchema } from "@/lib/schema/projects";
 import { NextResponse } from "next/server";
-import { handler } from "typed-handlers";
+import { createHandler } from "typed-handlers";
 
-export const GET = handler(
+export const GET = createHandler(
   async ({ params }) => {
     return NextResponse.json({
       id: params.id,
