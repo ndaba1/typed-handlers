@@ -38,6 +38,9 @@ importers:
       '@fontsource/dm-serif-display':
         specifier: ^5.0.19
         version: 5.0.19
+      '@fontsource/geist-mono':
+        specifier: ^5.0.2
+        version: 5.0.2
       '@fontsource/geist-sans':
         specifier: ^5.0.2
         version: 5.0.2
@@ -717,6 +720,10 @@ packages:
 
   /@fontsource/dm-serif-display@5.0.19:
     resolution: {integrity: sha512-18tglu23iVFkGrBvOKvvre6C845XoXNaVZm6afvjjWZF4RY6DSFNjrmncYatYYPBD265CePyNEnNBjwDRc9iIg==}
+    dev: false
+
+  /@fontsource/geist-mono@5.0.2:
+    resolution: {integrity: sha512-+8bolYSqN3F0bHln4WPltJ+6r12Z3ZMf+JyHYPfHYrzOyT14fOc9DAmvlTwjl4uncH1v+7baWYApC+yoYl/FLg==}
     dev: false
 
   /@fontsource/geist-sans@5.0.2:
