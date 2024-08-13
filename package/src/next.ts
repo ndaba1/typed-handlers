@@ -1,7 +1,12 @@
 import fs from "fs";
 import type { NextConfig } from "next";
 import path from "path";
-import { logger } from "./utils";
+
+const logger = (...args: any[]) => {
+  if (process.env.TYPED_HANDLERS_DEBUG_MODE === "true") {
+    console.log("typed-handlers:", ...args);
+  }
+};
 
 export function withTypedHandlers(
   config: NextConfig,
@@ -52,14 +57,33 @@ function generateRoutes({ src, legacy }: { src: string; legacy?: boolean }) {
       }
     });
   } else {
+    const isPrivate = (file: string) => {
+      const segments = file.replace(/\\/g, "/").split("/");
+      const hasPrivateFolder = segments.some((segment) =>
+        segment.startsWith("_")
+      );
+
+      return hasPrivateFolder;
+    };
+
     const files = fs.readdirSync(src, { recursive: true });
-    files.forEach((file) => {
-      if (typeof file === "string") {
-        const lastSegment = file.replace(/\\/g, "/").split("/").pop();
-        if (/^route\.(ts|js)$/.test(lastSegment || ""))
-          routes.push(file.replace(/route\.(ts|js)/, ""));
-      }
-    });
+    files
+      .filter((file) => !isPrivate(file as string))
+      .forEach((file) => {
+        if (typeof file === "string") {
+          const lastSegment = file.replace(/\\/g, "/").split("/").pop();
+          if (/^route\.(ts|js)$/.test(lastSegment || "")) {
+            routes.push(
+              file
+                .replace(/\\/g, "/")
+                // ignore route.ts
+                .replace(/route\.(ts|js)/, "")
+                // ignore paranthesis ()
+                .replace(/\([\w]+\)\//, "")
+            );
+          }
+        }
+      });
   }
 
   routes.forEach((route) => {
@@ -67,7 +91,6 @@ function generateRoutes({ src, legacy }: { src: string; legacy?: boolean }) {
   });
 
   logger(`generating routes config`, { routes, routesConfig });
-
   writeTypeDefs(routesConfig);
 }
 
@@ -86,8 +109,6 @@ declare global {
 `.trim();
 
   writeRelative("routes.d.ts", `${routesDeclaration}`);
-
-  // generate typed-handlers.d.ts
   updateTsConfig();
 }
 
