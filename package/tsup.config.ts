@@ -5,7 +5,6 @@ export default defineConfig([
     entry: ["src/next.ts"],
     format: ["cjs"],
     external: ["typed-handlers"],
-    external: ["typed-handlers"],
     dts: true,
   },
   {
