@@ -39,7 +39,7 @@ const tsconfig = `
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "typed-handlers.d.ts"
+    "routes-env.d.ts"
   ],
 }
 `;
@@ -164,7 +164,7 @@ const typeSafeBody = cfg.body({
         <p class="mb-2 text-gray-500 text-sm tracking-wide">INSTALLATION</p>
         <Prism
           lang="bash"
-          code={`npm install typed-handlers`}
+          code={`npm install typed-handlers@latest`}
           class="rounded-lg bg-white p-4"
         />
       </div>
@@ -186,7 +186,7 @@ const typeSafeBody = cfg.body({
         />
         <p>
           Once you&apos;ve added this to your config, you'll notice that a new
-          file <code>typed-handlers.d.ts</code> is created add added to the <code
+          file <code>routes-env.d.ts</code> is created add added to the <code
             >include</code
           >
           options in your <code>tsconfig.json</code> file. If this doesn't happen
@@ -194,7 +194,7 @@ const typeSafeBody = cfg.body({
         </p>
         <Prism
           lang="ts"
-          code={`\/\/ typed-handlers.d.ts\n\n/// <reference types='typed-handlers/routes' />`}
+          code={`\/\/ routes-env.d.ts\n\n/// <reference types='typed-handlers/routes' />`}
           class="rounded-lg bg-white p-4"
         />
         <Prism

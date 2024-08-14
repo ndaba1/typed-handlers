@@ -119,9 +119,9 @@ function updateTsConfig() {
   const fWrite = (p: string, content: string) =>
     fs.writeFileSync(path.join(process.cwd(), p), content, "utf-8");
 
-  if (!fExists("typed-handlers.d.ts")) {
+  if (!fExists("routes-env.d.ts")) {
     fWrite(
-      "typed-handlers.d.ts",
+      "routes-env.d.ts",
       "/// <reference types='typed-handlers/routes' />\n"
     );
   }
@@ -133,8 +133,8 @@ function updateTsConfig() {
       tsconfig.include = [];
     }
 
-    if (!tsconfig.include.includes("typed-handlers.d.ts")) {
-      tsconfig.include.push("typed-handlers.d.ts");
+    if (!tsconfig.include.includes("routes-env.d.ts")) {
+      tsconfig.include.push("routes-env.d.ts");
       fWrite("tsconfig.json", JSON.stringify(tsconfig, null, 2));
     }
   }

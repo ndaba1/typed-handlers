@@ -5,10 +5,9 @@ Simple, type-safe REST APIs in Next.js
 ### Installation
 
 ```bash
-npm install typed-handlers
+npm install typed-handlers@latest
 ```
 
 ### Documentation
-https://typed-handlers.vercel.app/
 
-![typed-handlers](../docs/public/bg.png)
+https://typed-handlers.vercel.app/
