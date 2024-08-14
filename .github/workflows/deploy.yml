@@ -43,7 +43,7 @@ jobs:
         run: pnpm install
 
       - name: build packages
-        run: pnpm build
+        run: pnpm build --filter typed-handlers
 
       - name: create and publish versions
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

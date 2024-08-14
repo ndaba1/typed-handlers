@@ -18,11 +18,30 @@ const { title } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Astro description" />
+    <meta
+      name="description"
+      content="A simple approach to achieving type safety in your Next.js project without sacrificing developer experience or the simplicity of RESTful APIs"
+    />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/prism.css" />
     <meta name="generator" content={Astro.generator} />
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:url" content="https://typed-handlers.vercel.app" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Typed handlers | Type-safe approach to Next.js Route Handlers"
+    />
+    <meta
+      property="og:description"
+      content="A simple approach to achieving type safety in your Next.js project without sacrificing developer experience or the simplicity of RESTful APIs"
+    />
+    <meta
+      property="og:image"
+      content="https://typed-handlers.vercel.app/bg.png"
+    />
     <title>{title}</title>
   </head>
   <body class="bg-gray-100">
@@ -50,8 +69,8 @@ const { title } = Astro.props;
   }
 
   code {
-	font-size: 0.9em;
-	color: #d400ff;
+    font-size: 0.9em;
+    color: #d400ff;
     font-family:
       "Geist Mono",
       Menlo,
