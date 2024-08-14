@@ -30,11 +30,19 @@
     "dev": "tsup --watch",
     "build": "tsup"
   },
-  "keywords": [],
+  "keywords": [
+    "next",
+    "zod",
+    "typed-handlers",
+    "typescript"
+  ],
   "author": "Victor Ndaba <mwangindaba@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
     "next": ">= 13",
     "zod": ">= 3.22"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
