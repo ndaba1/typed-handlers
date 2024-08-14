@@ -1,5 +1,11 @@
 # typed-handlers
 
+## 0.0.4
+
+### Patch Changes
+
+- 2eba656: patched types output file to fix broken type references issues
+
 ## 0.0.3
 
 ### Patch Changes
