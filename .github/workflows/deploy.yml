@@ -1,0 +1,57 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+env:
+  CI: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+
+      - name: Configure pnpm
+        run: |
+          pnpm config set git-checks false
+
+      - name: install dependencies
+        run: pnpm install
+
+      - name: build packages
+        run: pnpm build
+
+      - name: create and publish versions
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: changesets/action@v1
+        with:
+          commit: "ci: update versions"
+          title: "ci: update versions"
+          publish: pnpm ci:publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
