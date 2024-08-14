@@ -1,33 +1,6 @@
-import type { NextResponse } from "next/server";
-import type { z } from "zod";
-
 declare global {
   interface RoutesConfig {}
 }
-
-export type Awaitable<T> = T | Promise<T>;
-export type NextContext = {
-  params: Record<string, string | string[]>;
-};
-export type ValidationFunction<T extends z.ZodType> = (args: {
-  source: "body" | "query";
-  error: z.ZodError;
-}) => Awaitable<NextResponse<z.output<T>> | Response>;
-export type HandlerFunction<TOutput extends z.ZodType> = Awaitable<
-  NextResponse<z.output<TOutput>> | Response
->;
-
-export type Schema<
-  TInput extends z.ZodType,
-  TQuery extends z.ZodType,
-  TOutput extends z.ZodType,
-  TError extends z.ZodType
-> = {
-  body?: TInput;
-  query?: TQuery;
-  output?: TOutput;
-  error?: TError;
-};
 
 export type ParamType<T extends string> = T extends `...${infer Param}`
   ? {
@@ -58,39 +31,10 @@ export type RouteParams<K extends string> =
       : {}
     : {};
 
-export type Result<
-  R extends Response,
-  TData extends z.ZodType,
-  TError extends z.ZodType
-> =
-  | {
-      success: true;
-      data: z.infer<TData>;
-      response: R;
-    }
-  | {
-      success: false;
-      error: z.infer<TError>;
-      response: R;
-    };
-
-export type RefinedRequestInit<
-  TInput extends z.ZodType,
-  TQuery extends z.ZodType,
-  TOutput extends z.ZodType,
-  TError extends z.ZodType
-> = Omit<RequestInit, "method" | "body"> & {
-  schema: Schema<TInput, TQuery, TOutput, TError>;
-  query?: z.output<TQuery>;
-};
-
-export type RefinedRequestInitWithBody<
-  TInput extends z.ZodType,
-  TQuery extends z.ZodType,
-  TOutput extends z.ZodType,
-  TError extends z.ZodType
-> = Omit<RequestInit, "method" | "body"> & {
-  body: z.output<TInput>;
-  schema: Schema<TInput, TQuery, TOutput, TError>;
-  query?: z.output<TQuery>;
-};
+export type SearchParamsInit =
+  | string
+  | URLSearchParams
+  | Record<string, string | readonly string[]>
+  | Iterable<[string, string]>
+  | readonly [string, string][]
+  | undefined;
