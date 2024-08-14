@@ -44,5 +44,7 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "repository": "ndaba1/typed-handlers",
+  "homepage": "https://typed-handlers.vercel.app"
 }
