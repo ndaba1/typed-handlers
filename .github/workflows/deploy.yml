@@ -51,7 +51,7 @@ jobs:
         with:
           commit: "ci: update versions"
           title: "ci: update versions"
-          publish: pnpm ci:publish
+          publish: pnpm publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
