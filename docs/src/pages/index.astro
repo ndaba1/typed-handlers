@@ -6,14 +6,17 @@ const features = [
   {
     title: "Minimal footprint",
     description: "Built with zero dependencies and a small API surface",
+    description: "Built with zero dependencies and a small API surface",
   },
   {
     title: "Pages router support",
+    description: "Pages or app router, it matters not. Both are supported",
     description: "Pages or app router, it matters not. Both are supported",
   },
   {
     title: "IDE and runtime type safety",
     description:
+      "Linter errors when building and red squiggly lines in your editor",
       "Linter errors when building and red squiggly lines in your editor",
   },
   {
@@ -23,10 +26,14 @@ const features = [
   {
     title: "Endpoint autocompletion",
     description: "Make requests to typed endpoints with confidence",
+    title: "Endpoint autocompletion",
+    description: "Make requests to typed endpoints with confidence",
   },
   {
     title: "Built on Zod",
+    title: "Built on Zod",
     description:
+      "Leverage the power of Zod to define your input and output schemas",
       "Leverage the power of Zod to define your input and output schemas",
   },
 ];
@@ -156,6 +163,8 @@ const typeSafeBody = cfg.body({
 
     <section id="getting-started" class="pb-10 max-w-5xl mx-auto space-y-6">
       <h2 class="text-2xl heading text-center mb-8">Getting started</h2>
+    <section id="getting-started" class="pb-10 max-w-5xl mx-auto space-y-6">
+      <h2 class="text-2xl heading text-center mb-8">Getting started</h2>
       <div>
         <p class="mb-2 text-gray-500 text-sm tracking-wide">INSTALLATION</p>
         <Prism
@@ -185,6 +194,9 @@ const typeSafeBody = cfg.body({
           file <code>typed-handlers.d.ts</code> is created add added to the <code
             >include</code
           >
+          file <code>typed-handlers.d.ts</code> is created add added to the <code
+            >include</code
+          >
           options in your <code>tsconfig.json</code> file. If this doesn't happen
           automatically for whatever reason, ensure your setup resembles the following
         </p>
@@ -194,6 +206,7 @@ const typeSafeBody = cfg.body({
           class="rounded-lg bg-white p-4"
         />
         <Prism
+          lang="json"
           lang="json"
           code={`\/\/ tsconfig.json\n\n${tsconfig.trim()}`}
           class="rounded-lg bg-white p-4"

@@ -20,10 +20,22 @@ export type RouteParams<K extends string> =
         : {
             [key in Param | keyof RouteParams<`/${Rest}/`>]: string;
           }
+      ? Param extends `...${infer InnerParam}`
+        ? {
+            [key in InnerParam | keyof RouteParams<`/${Rest}/`>]: string[];
+          }
+        : {
+            [key in Param | keyof RouteParams<`/${Rest}/`>]: string;
+          }
       : Rest extends `/[${infer Param}]`
+      ? ParamType<Param>
       ? ParamType<Param>
       : RouteParams<`/${Rest}`>
     : K extends `/${infer Rest}`
+    ? Rest extends `[[${infer Param}]]`
+      ? { [key in keyof ParamType<Param>]?: string[] }
+      : Rest extends `[${infer Param}]`
+      ? ParamType<Param>
     ? Rest extends `[[${infer Param}]]`
       ? { [key in keyof ParamType<Param>]?: string[] }
       : Rest extends `[${infer Param}]`
