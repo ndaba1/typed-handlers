@@ -1,6 +1,6 @@
 {
   "name": "typed-handlers",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Type-safe REST APIs in Next.js",
   "exports": {
     "./package.json": "./package.json",
