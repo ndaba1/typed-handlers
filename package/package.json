@@ -3,9 +3,8 @@
   "version": "0.0.2",
   "description": "Type-safe REST APIs in Next.js",
   "exports": {
-    "./package.json": "./package.json",
     "./routes": {
-      "types": "./dist/routes.d.ts"
+      "types": "./routes.d.ts"
     },
     ".": {
       "types": "./dist/index.d.ts",

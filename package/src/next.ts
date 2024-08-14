@@ -97,7 +97,7 @@ function generateRoutes({ src, legacy }: { src: string; legacy?: boolean }) {
 function writeTypeDefs(routesConfig: Record<string, {}>) {
   const nodeModulePath = path.dirname(require.resolve("typed-handlers"));
   const writeRelative = (p: string, content: string) =>
-    fs.writeFileSync(path.join(nodeModulePath, p), content, "utf-8");
+    fs.writeFileSync(path.join(nodeModulePath, "../", p), content, "utf-8");
 
   const routesDeclaration = `
 declare global {
